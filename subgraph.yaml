@@ -1,0 +1,26 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: TOGA
+    network: matic
+    source:
+      address: "0x1b18770E5198983AF04B3735d01E09A57d27bD43"
+      abi: TOGA
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ExitRateChanged
+        - NewPIC
+      abis:
+        - name: TOGA
+          file: ./abis/TOGA.json
+      eventHandlers:
+        - event: ExitRateChanged(indexed address,int96)
+          handler: handleExitRateChanged
+        - event: NewPIC(indexed address,address,uint256,int96)
+          handler: handleNewPIC
+      file: ./src/mapping.ts
