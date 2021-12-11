@@ -1,6 +1,48 @@
-type ExampleEntity @entity {
-  id: ID!
-  count: BigInt!
-  token: Bytes! # address
-  exitRate: BigInt! # int96
+# EVENT INTERFACE
+interface Event {
+    id: ID!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+}
+
+# EVENT ENTITIES
+type NewPIC implements Event @entity {
+    id: ID!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    token: Bytes!
+    lastPic: Bytes!
+    newPic: Bytes!
+    bond: BigInt!
+    exitRate: BigInt!
+}
+
+type ExitRateChanged implements Event @entity {
+    id: ID!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    token: Bytes!
+    pic: Bytes!
+    oldExitRate: BigInt!
+    newExitRate: BigInt!
+}
+
+# ENTITIES
+
+# ACCOUNT
+type Account @entity {
+    id: ID!
+    newPicEvents: [NewPIC!]
+    exitRateChanges: [ExitRateChanged!]
+}
+
+# PIC
+type PIC @entity {
+    id: ID!
+    account: Bytes!
+    token: Bytes!
+    
 }
