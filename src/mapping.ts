@@ -2,70 +2,52 @@ import { BigInt } from "@graphprotocol/graph-ts"
 import {
 	TOGA,
 	ExitRateChanged as ExitRateChangedEvent,
-	NewPIC
+	NewPIC as NewPICEvent
 } from "../generated/TOGA/TOGA"
 import { ExitRateChanged } from "../generated/schema"
-import { createEventId, getPicId } from "./util"
+import { getEventId, getOrInitPic, getPicId } from "./util"
 
-export function handleNewPIC(event: NewPIC): void {
+export function handleNewPIC(event: NewPICEvent): void {
+	let { number, timestamp } = event.block
 
+	let eventId = getEventId(event)
+	let erc = new ExitRateChanged(eventId)
+	erc.blockNumber = number
+	erc.timestamp = timestamp
+	erc.transactionHash = event.transaction.hash
+	erc.token = event.params.token
+	erc.oldExitRate = new BigInt(0)
+	erc.newExitRate = event.params.exitRate
+	erc.pic = getPicId(event.params.token, event.params.pic)
+	erc.save()
+
+	let pic = getOrInitPic(event.params.token, event.params.pic)
+	pic.exitRate = event.params.exitRate
+	pic.becamePICTimestamp = timestamp
+	pic.lastUpdateTimestamp = timestamp
+	pic.becamePICBlock = number
+	pic.lastUpdateBlock = number
+	pic.active = true
+	pic.exitRateChanges = [eventId]
+	pic.save()
 }
 
 export function handleExitRateChanged(event: ExitRateChangedEvent): void {
-	let ev = new ExitRateChanged(createEventId(event))
-	let toga = TOGA.bind(event.address)
-	let pic = toga.getCurrentPIC(event.params.token)
-	ev.blockNumber = event.block.number
-	ev.timestamp = event.block.timestamp
-	ev.transactionHash = event.transaction.hash
-	ev.token = event.params.token
-	ev.newExitRate = event.params.exitRate
-	ev.pic = pic
+	const eventId = getEventId(event)
+	const { address, params, block, transaction } = event
+	const account = TOGA.bind(address).getCurrentPICInfo(params.token).value0
+
+	let pic = getOrInitPic(params.token, account)
+	pic.exitRateChanges.push(eventId)
+	pic.save()
+	
+	let erc = new ExitRateChanged(getEventId(event))
+	erc.blockNumber = block.number
+	erc.timestamp = block.timestamp
+	erc.transactionHash = transaction.hash
+	erc.token = params.token
+	erc.pic = getPicId(params.token, account)
+	erc.oldExitRate = pic.exitRate
+	erc.newExitRate = params.exitRate
+	erc.save()
 }
-
-// export function handleExitRateChangedOld(event: ExitRateChanged): void {
-//   // Entities can be loaded from the store using a string ID; this ID
-//   // needs to be unique across all entities of the same type
-//   let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-//   // Entities only exist after they have been saved to the store;
-//   // `null` checks allow to create entities on demand
-//   if (!entity) {
-//     entity = new ExampleEntity(event.transaction.from.toHex())
-
-//     // Entity fields can be set using simple assignments
-//     entity.count = BigInt.fromI32(0)
-//   }
-
-//   // BigInt and BigDecimal math are supported
-//   entity.count = entity.count + BigInt.fromI32(1)
-
-//   // Entity fields can be set based on event parameters
-//   entity.token = event.params.token
-//   entity.exitRate = event.params.exitRate
-
-//   // Entities can be written to the store with `.save()`
-//   entity.save()
-
-//   // Note: If a handler doesn't require existing field values, it is faster
-//   // _not_ to load the entity from the store. Instead, create it fresh with
-//   // `new Entity(...)`, set the fields that should be updated and save the
-//   // entity back to the store. Fields that were not set or unset remain
-//   // unchanged, allowing for partial updates to be applied.
-
-//   // It is also possible to access smart contracts from mappings. For
-//   // example, the contract that has emitted the event can be connected to
-//   // with:
-//   //
-//   // let contract = Contract.bind(event.address)
-//   //
-//   // The following functions can then be called on this contract to access
-//   // state variables and other data:
-//   //
-//   // - contract.ERC777_SEND_GAS_LIMIT(...)
-//   // - contract.getCurrentPIC(...)
-//   // - contract.getCurrentPICInfo(...)
-//   // - contract.getDefaultExitRateFor(...)
-//   // - contract.getMaxExitRateFor(...)
-//   // - contract.minBondDuration(...)
-// }

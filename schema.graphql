@@ -1,3 +1,19 @@
+# PIC
+type PIC @entity {
+    id: ID!
+    account: Bytes!
+    token: Bytes!
+    exitRate: BigInt!
+    becamePICTimestamp: BigInt!
+    lastUpdateTimestamp: BigInt!
+    becamePICBlock: BigInt!
+    lastUpdateBlock: BigInt!
+    bondAtLastUpdate: BigInt!
+    active: Boolean!
+    exitRateChanges: [ExitRateChanged!]!
+    # bond: BigInt! # not sure if this is possible, more at the bottom
+}
+
 # EVENT INTERFACE
 interface Event {
     id: ID!
@@ -25,24 +41,19 @@ type ExitRateChanged implements Event @entity {
     timestamp: BigInt!
     transactionHash: Bytes!
     token: Bytes!
-    pic: Bytes!
+    pic: PIC!
     oldExitRate: BigInt!
     newExitRate: BigInt!
 }
 
-# ENTITIES
-
-# ACCOUNT
-type Account @entity {
-    id: ID!
-    newPicEvents: [NewPIC!]
-    exitRateChanges: [ExitRateChanged!]
-}
-
-# PIC
-type PIC @entity {
-    id: ID!
-    account: Bytes!
-    token: Bytes!
-    
-}
+# Bond will be difficult to index, as the bond amount is:
+# initialBid + sum(liquidations) - sum(bailouts) - (flowRate * (timestamp - lastUpdate))
+#
+# initialBid    -> TOGA.NewPIC.bond
+# liquidations  -> SuperfluidToken.AgreementLiquidatedBy.rewardAmount
+# bailouts      -> SuperfluidToken.AgreementLiquidatedBy.bailoutAmount
+# flowRate      -> TOGA.NewPIC.exitRate | TOGA.ExitRateChanged.exitRate
+# timestamp     -> not indexed, client side
+# lastUpdate    -> TOGA.NewPIC.timestamp | TOGA.ExitRateChanged.timestamp
+#
+# this will likely be `bondUntilUpdatedAt`
