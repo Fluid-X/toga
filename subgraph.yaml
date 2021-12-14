@@ -22,5 +22,5 @@ dataSources:
         - event: ExitRateChanged(indexed address,int96)
           handler: handleExitRateChanged
         - event: NewPIC(indexed address,address,uint256,int96)
-          handler: handleNewPIC
+          handler: handleNewPic
       file: ./src/mapping.ts

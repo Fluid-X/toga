@@ -1,16 +1,17 @@
 # PIC
+# ID is hyphen-separated token and account address
 type PIC @entity {
     id: ID!
     account: Bytes!
     token: Bytes!
     exitRate: BigInt!
     becamePICTimestamp: BigInt!
-    lastUpdateTimestamp: BigInt!
     becamePICBlock: BigInt!
+    lastUpdateTimestamp: BigInt!
     lastUpdateBlock: BigInt!
     bondAtLastUpdate: BigInt!
     active: Boolean!
-    exitRateChanges: [ExitRateChanged!]!
+    exitRateChanges: [ExitRateChangedEvent!]!
     # bond: BigInt! # not sure if this is possible, more at the bottom
 }
 
@@ -23,19 +24,19 @@ interface Event {
 }
 
 # EVENT ENTITIES
-type NewPIC implements Event @entity {
+type NewPICEvent implements Event @entity {
     id: ID!
     blockNumber: BigInt!
     timestamp: BigInt!
     transactionHash: Bytes!
     token: Bytes!
-    lastPic: Bytes!
-    newPic: Bytes!
+    lastPic: String!
+    newPic: String!
     bond: BigInt!
     exitRate: BigInt!
 }
 
-type ExitRateChanged implements Event @entity {
+type ExitRateChangedEvent implements Event @entity {
     id: ID!
     blockNumber: BigInt!
     timestamp: BigInt!

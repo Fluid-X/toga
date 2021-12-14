@@ -1,15 +1,22 @@
 import { Bytes, ethereum } from "@graphprotocol/graph-ts"
 import { PIC } from "../generated/schema"
 
-export function getEventId(event: ethereum.Event): string {
+type EventLabel = "ExitRateChanged" | "NewPIC"
+
+export function getEventId(event: ethereum.Event, label: EventLabel): string {
 	return event.transaction.hash
 		.toHex()
 		.concat("-")
-		.concat(event.logIndex.toString())
+		.concat(event.logIndex.toHex())
+		.concat("-")
+		.concat(label)
 }
 
 export function getPicId(token: Bytes, account: Bytes): string {
-    return token.toString().concat("-").concat(account.toString())
+	return token
+		.toHex()
+		.concat("-")
+		.concat(account.toHex())
 }
 
 export function getOrInitPic(token: Bytes, account: Bytes): PIC {
