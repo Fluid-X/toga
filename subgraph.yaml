@@ -15,8 +15,8 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - ExitRateChanged
-        - NewPIC
+        - ExitRateChangedEvent
+        - NewPICEvent
         - PIC
       abis:
         - name: ITOGAv1
@@ -74,8 +74,8 @@ templates:
       language: wasm/assemblyscript
       file: ./src/mapping.ts
       entities:
-        - AgreementLiquidatedBy
-        - Token
+        - AgreementLiquidatedByEvent
+        - SuperToken
         - LiquidationStatistic
       abis:
         - name: Resolver
