@@ -1,20 +1,3 @@
-# PIC
-# ID is hyphen-separated token and account address
-type PIC @entity {
-    id: ID!
-    account: Bytes!
-    token: Bytes!
-    exitRate: BigInt!
-    becamePICTimestamp: BigInt!
-    becamePICBlock: BigInt!
-    lastUpdateTimestamp: BigInt!
-    lastUpdateBlock: BigInt!
-    bondAtLastUpdate: BigInt!
-    active: Boolean!
-    exitRateChanges: [ExitRateChangedEvent!]!
-    # bond: BigInt! # not sure if this is possible, more at the bottom
-}
-
 # EVENT INTERFACE
 interface Event {
     id: ID!
@@ -23,31 +6,104 @@ interface Event {
     transactionHash: Bytes!
 }
 
-# EVENT ENTITIES
+# TOGA EVENTS
+
 type NewPICEvent implements Event @entity {
     id: ID!
     blockNumber: BigInt!
     timestamp: BigInt!
     transactionHash: Bytes!
-    token: Bytes!
-    lastPic: String!
-    newPic: String!
+    token: SuperToken!
+    lastPic: PIC!
+    newPic: PIC!
     bond: BigInt!
     exitRate: BigInt!
 }
 
-type ExitRateChangedEvent implements Event @entity {
+type ExitRateChanged implements Event @entity {
     id: ID!
     blockNumber: BigInt!
     timestamp: BigInt!
     transactionHash: Bytes!
-    token: Bytes!
+    token: SuperToken!
     pic: PIC!
     oldExitRate: BigInt!
     newExitRate: BigInt!
 }
 
-# Bond will be difficult to index, as the bond amount is:
+# SUPER TOKEN FACTORY EVENTS
+type CustomSuperTokenCreatedEvent @entity {
+    id: ID!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    token: SuperToken!
+}
+
+type SuperTokenCreatedEvent @entity {
+    id: ID!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    token: SuperToken!
+}
+
+type SuperTokenLogicCreatedEvent @entity {
+    id: ID!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    token: SuperToken!
+}
+
+# SUPER TOKEN EVENTS
+type AgreementLiquidatedByEvent @entity {
+    id: ID!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    token: SuperToken!
+    liquidator: Bytes!
+    bondAccount: Bytes! # SHOULD ALWAYS BE TOGA, EXCEPT BEFORE TOGA WAS LIVE
+    rewardAmount: BigInt!
+    bailoutAmount: BigInt!
+    pic: PIC!
+}
+
+# NON EVENT ENTITIES
+type PIC @entity {
+    id: ID!
+    account: Bytes!
+    token: Bytes!
+    exitRate: BigInt!
+    becamePICTimestamp: BigInt!
+    becamePICBlockNumber: BigInt!
+    lastUpdateTimestamp: BigInt!
+    lastUpdateBlockNumber: BigInt!
+    bondAtLastUpdate: BigInt!
+    active: Boolean!
+    exitRateChanges: [ExitRateChangedEvent!]!
+}
+
+type SuperToken @entity {
+    id: ID!
+    createdAtTimestamp: BigInt!
+    createdAtBlockNumber: BigInt!
+    decimals: Int!
+    name: String!
+    symbol: String!
+    isListed: Boolean!
+    underlyingAddress: Bytes!
+}
+
+type SuperTokenStatistic @entity {
+    id: ID!
+    liquidations: BigInt! # Number of liquidations
+    totalRewards: BigInt! # Number of rewards
+    # TODO the rest lol
+}
+
+# Bond computation:
 # initialBid + sum(liquidations) - sum(bailouts) - (flowRate * (timestamp - lastUpdate))
 #
 # initialBid    -> TOGA.NewPIC.bond

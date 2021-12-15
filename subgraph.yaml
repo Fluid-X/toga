@@ -1,13 +1,15 @@
-specVersion: 0.0.2
+specVersion: 0.0.3
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
+  # TOGA
+  - kind: ethereum/contract
     name: TOGA
-    network: matic
+    network: __NETWORK__ # matic
     source:
-      address: "0x1b18770E5198983AF04B3735d01E09A57d27bD43"
-      abi: TOGA
+      abi: ITOGAv1
+      address: __TOGA_ADDRESS__ # "0x1b18770E5198983AF04B3735d01E09A57d27bD43"
+      startBlock: __START_BLOCK__
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -15,12 +17,73 @@ dataSources:
       entities:
         - ExitRateChanged
         - NewPIC
+        - PIC
       abis:
-        - name: TOGA
-          file: ./abis/TOGA.json
+        - name: ITOGAv1
+          file: ./abis/ITOGAv1.json
       eventHandlers:
         - event: ExitRateChanged(indexed address,int96)
           handler: handleExitRateChanged
         - event: NewPIC(indexed address,address,uint256,int96)
           handler: handleNewPic
       file: ./src/mapping.ts
+  # SUPER TOKEN FACTORY
+  - kind: ethereum/contract
+    name: SuperTokenFactory
+    netowrk: __NETWORK__
+    source:
+      abi: ISuperTokenFactory
+      address: __SUPER_TOKEN_FACTORY_ADDRESS__
+      startBlock: __START_BLOCK__
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      langauge: wasm/assemblyscript
+      file: ./src/mappings.ts
+      entities:
+        - CustomSuperTokenCreatedEvent
+        - SuperTokenCreatedEvent
+        - SuperTokenLogicCreatedEvent
+        - SuperToken
+      abis:
+        - name: Resolver
+          file: ./abis/Resolver.json
+        - name: ISuperTokenFactory
+          file: ./abis/ISuperTokenFactory.json
+        - name: ISuperToken
+          file: ./abis/ISuperToken.json
+        - name: ISuperfluid
+          file: ./abis/ISuperfluid.json
+      eventHandlers:
+        - event: SuperTokenCreated(indexed address)
+          handler: handleSuperTokenCreated
+        - event: CustomSuperTokenCreated(indexed address)
+          handler: handleCustomSuperTokenCreated
+        - event: SuperTokenLogicCreated(indexed address)
+          handler: handleSuperTokenLogicCreated
+# SUPER TOKEN TEMPLATE
+templates:
+  - name: SuperToken
+    kind: ethereum/contract
+    network: __NETWORK__
+    source:
+      abi: ISuperToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - AgreementLiquidatedBy
+        - Token
+        - LiquidationStatistic
+      abis:
+        - name: Resolver
+          file: ./abis/Resolver.json
+        - name: ISuperToken
+          file: ./abis/ISuperToken.json
+        - name: ISuperfluid
+          file: ./abis/ISuperfluid.json
+      eventHandlers:
+        - event: AgreementLiquidatedBy(address,indexed address,bytes32,indexed address,indexed address,uint256,uint256)
+          handler: handleAgreementLiquidatedBy

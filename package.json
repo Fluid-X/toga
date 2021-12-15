@@ -2,6 +2,8 @@
   "name": "toga",
   "license": "UNLICENSED",
   "scripts": {
+    "develop": "yarn install && yarn getAbis && yarn codegen",
+    "getAbis": "./scripts/getAbis.sh",
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ fluid-x/toga",
@@ -12,5 +14,8 @@
   "dependencies": {
     "@graphprotocol/graph-cli": "0.25.1",
     "@graphprotocol/graph-ts": "0.24.1"
+  },
+  "devDependencies": {
+    "@superfluid-finance/ethereum-contracts": "^1.0.0-rc.8"
   }
 }

@@ -1,3 +1,5 @@
+// NOT UPDATED SINCE SCHEMA AND MANIFEST UPDATE
+
 import { Bytes, ethereum } from "@graphprotocol/graph-ts"
 import { PIC } from "../generated/schema"
 

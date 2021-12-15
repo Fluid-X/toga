@@ -1,3 +1,5 @@
+// NOT UPDATED SINCE SCHEMA AND MANIFEST UPDATE
+
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
 	TOGA,
