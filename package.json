@@ -6,6 +6,10 @@
     "getAbis": "./scripts/getAbis.sh",
     "codegen": "graph codegen",
     "build": "graph build",
+    "manifest:matic": "mustache config/matic.json subgraph.template.yaml > subgraph.yaml",
+    "manifest:xdai": "mustache config/xdai.json subgraph.template.yaml > subgraph.yaml",
+    "addresses:matic": "mustache config/matic.json src/addresses.template.ts > src/addresses.ts",
+    "addresses:xdai": "mustache config/xdai.json src/addresses.template.ts > src/addresses.ts",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ fluid-x/toga",
     "create-local": "graph create --node http://localhost:8020/ fluid-x/toga",
     "remove-local": "graph remove --node http://localhost:8020/ fluid-x/toga",
@@ -13,7 +17,8 @@
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.25.1",
-    "@graphprotocol/graph-ts": "0.24.1"
+    "@graphprotocol/graph-ts": "0.24.1",
+    "mustache": "^4.2.0"
   },
   "devDependencies": {
     "@superfluid-finance/ethereum-contracts": "^1.0.0-rc.8"

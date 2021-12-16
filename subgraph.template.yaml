@@ -5,11 +5,11 @@ dataSources:
   # TOGA
   - kind: ethereum/contract
     name: TOGA
-    network: matic
+    network: {{ network }}
     source:
       abi: ITOGAv1
-      address: "0x1b18770E5198983AF04B3735d01E09A57d27bD43"
-      startBlock: 
+      address: "{{ togaAddress }}"
+      startBlock: {{ startBlock }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -30,11 +30,11 @@ dataSources:
   # SUPER TOKEN FACTORY
   - kind: ethereum/contract
     name: SuperTokenFactory
-    network: matic
+    network: {{ network }}
     source:
       abi: ISuperTokenFactory
-      address: "0x2C90719f25B10Fc5646c82DA3240C76Fa5BcCF34"
-      startBlock: 
+      address: "{{ superTokenFactoryAddress }}"
+      startBlock: {{ startBlock }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -65,7 +65,7 @@ dataSources:
 templates:
   - name: SuperToken
     kind: ethereum/contract
-    network: matic
+    network: {{ network }}
     source:
       abi: ISuperToken
     mapping:

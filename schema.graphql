@@ -20,7 +20,7 @@ type NewPICEvent implements Event @entity {
     exitRate: BigInt!
 }
 
-type ExitRateChanged implements Event @entity {
+type ExitRateChangedEvent implements Event @entity {
     id: ID!
     blockNumber: BigInt!
     timestamp: BigInt!
